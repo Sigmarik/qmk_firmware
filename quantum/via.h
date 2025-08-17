@@ -124,10 +124,11 @@ enum via_qmk_rgblight_value {
 };
 
 enum via_qmk_rgb_matrix_value {
-    id_qmk_rgb_matrix_brightness   = 1,
-    id_qmk_rgb_matrix_effect       = 2,
-    id_qmk_rgb_matrix_effect_speed = 3,
-    id_qmk_rgb_matrix_color        = 4,
+    id_qmk_rgb_matrix_brightness     = 1,
+    id_qmk_rgb_matrix_effect         = 2,
+    id_qmk_rgb_matrix_effect_speed   = 3,
+    id_qmk_rgb_matrix_color          = 4,
+    id_qmk_rgb_matrix_effect_variety = 5,
 };
 
 enum via_qmk_audio_value {

@@ -54,6 +54,12 @@
               "content": ["id_qmk_rgb_matrix_effect_speed", 3, 3]
             },
             {
+              "label": "Variety",
+              "type": "range",
+              "options": [0, 255],
+              "content": ["id_qmk_rgb_matrix_effect_variety", 3, 5]
+            },
+            {
               "showIf": "{id_qmk_rgb_matrix_effect} != 0 && ( {id_qmk_rgb_matrix_effect} < 4 || {id_qmk_rgb_matrix_effect} == 18 || ({id_qmk_rgb_matrix_effect} > 17 && {id_qmk_rgb_matrix_effect} != 21) ) ",
               "label": "Color",
               "type": "color",

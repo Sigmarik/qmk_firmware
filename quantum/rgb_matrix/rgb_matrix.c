@@ -769,8 +769,24 @@ void rgb_matrix_set_speed(uint8_t speed) {
     rgb_matrix_set_speed_eeprom_helper(speed, true);
 }
 
+void rgb_matrix_set_variety_eeprom_helper(uint8_t variety, bool write_to_eeprom) {
+    rgb_matrix_config.variety = variety;
+    eeconfig_flag_rgb_matrix(write_to_eeprom);
+    dprintf("rgb matrix set variety [%s]: %u\n", (write_to_eeprom) ? "EEPROM" : "NOEEPROM", rgb_matrix_config.variety);
+}
+void rgb_matrix_set_variety_noeeprom(uint8_t variety) {
+    rgb_matrix_set_variety_eeprom_helper(variety, false);
+}
+void rgb_matrix_set_variety(uint8_t variety) {
+    rgb_matrix_set_variety_eeprom_helper(variety, true);
+}
+
 uint8_t rgb_matrix_get_speed(void) {
     return rgb_matrix_config.speed;
+}
+
+uint8_t rgb_matrix_get_variety(void) {
+    return rgb_matrix_config.variety;
 }
 
 void rgb_matrix_increase_speed_helper(bool write_to_eeprom) {
