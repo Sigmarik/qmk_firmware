@@ -5,7 +5,6 @@ RGB_MATRIX_EFFECT(TRUE_LAVA)
 bool TRUE_LAVA(effect_params_t* params) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
 
-    const float variability = 0.3;
     const float sine_one_kx = 0.02;
     const float sine_one_ky = 0.02;
     const float sine_one_w = 0.02;
@@ -22,6 +21,8 @@ bool TRUE_LAVA(effect_params_t* params) {
     const float sine_three_phi0 = 2;
     const float sine_three_amp = 2;
 
+    float variety = rgb_matrix_config.variety / 256.0;
+
     for (uint8_t i = led_min; i < led_max; i++) {
         RGB_MATRIX_TEST_LED_FLAGS();
         int dx = g_led_config.point[i].x - k_rgb_matrix_center.x;
@@ -32,7 +33,7 @@ bool TRUE_LAVA(effect_params_t* params) {
             pow(fabs(sin(time * sine_one_w - dx * sine_one_kx - dy * sine_one_ky * dy + sine_one_phi0)), 2.0) * sine_one_amp
             + pow(fabs(sin(time * sine_two_w - dx * sine_two_kx - dy * sine_two_ky * dy + sine_two_phi0)), 2.0) * sine_two_amp
             + pow(fabs(sin(time * sine_three_w - dx * sine_three_kx - dy * sine_three_ky * dy + sine_three_phi0)), 2.0) * sine_three_amp)
-            / (sine_one_amp + sine_two_amp + sine_three_amp) * variability;
+            / (sine_one_amp + sine_two_amp + sine_three_amp) * variety;
 
         HSV hsv = rgb_matrix_config.hsv;
 
