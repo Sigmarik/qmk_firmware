@@ -4,6 +4,30 @@ RGB_MATRIX_EFFECT(TRUE_LAVA)
 
 static float timer;
 
+static float gen_ripples(uint8_t index)
+{
+    uint8_t count = g_last_hit_tracker.count;
+
+    float ripple = 0.0f;
+
+    for (uint8_t j = 0; j < count; j++) {
+        int16_t  dx   = g_led_config.point[index].x - g_last_hit_tracker.x[j];
+        int16_t  dy   = g_led_config.point[index].y - g_last_hit_tracker.y[j];
+        uint8_t  dist = sqrt16(dx * dx + dy * dy);
+        float distance = (float)dist / 256.0;
+        float tick = (float)g_last_hit_tracker.tick[j] / 256.0 / 5.0;
+
+        const float maxDistance = 0.3125;
+        float currentRipple = expf(-409.6 * (distance - tick) * (distance - tick)) * (1 - distance / maxDistance);
+
+        if (distance <= maxDistance) {
+            ripple = fmax(ripple, currentRipple);
+        }
+    }
+
+    return ripple;
+}
+
 bool TRUE_LAVA(effect_params_t* params) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
 
@@ -44,6 +68,9 @@ bool TRUE_LAVA(effect_params_t* params) {
             + pow(fabs(sin(timer * sine_two_w - dx * sine_two_kx - dy * sine_two_ky * dy + sine_two_phi0)), 2.0) * sine_two_amp
             + pow(fabs(sin(timer * sine_three_w - dx * sine_three_kx - dy * sine_three_ky * dy + sine_three_phi0)), 2.0) * sine_three_amp)
             / (sine_one_amp + sine_two_amp + sine_three_amp) * variety;
+
+        float ripples = gen_ripples(i);
+        val = val * (1.0 - ripples) + (fmin(variety * 2.0, 1.0) - val) * ripples;
 
         HSV hsv = rgb_matrix_config.hsv;
 
