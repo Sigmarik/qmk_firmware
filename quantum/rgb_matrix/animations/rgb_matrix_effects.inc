@@ -38,3 +38,5 @@
 #include "solid_reactive_nexus.h"
 #include "splash_anim.h"
 #include "solid_splash_anim.h"
+#include "shchmax_lava.h"
+#include "true_lava.h"
