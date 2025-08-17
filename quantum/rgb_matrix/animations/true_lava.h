@@ -2,6 +2,8 @@
 RGB_MATRIX_EFFECT(TRUE_LAVA)
 #    ifdef RGB_MATRIX_CUSTOM_EFFECT_IMPLS
 
+static float timer;
+
 bool TRUE_LAVA(effect_params_t* params) {
     RGB_MATRIX_USE_LIMITS(led_min, led_max);
 
@@ -21,18 +23,26 @@ bool TRUE_LAVA(effect_params_t* params) {
     const float sine_three_phi0 = 2;
     const float sine_three_amp = 2;
 
+    const float timelcm = acos(-1) * 10000000.0;
+
     float variety = rgb_matrix_config.variety / 256.0;
+
+    if (params->init) {
+        timer = 0;
+    }
+    if (timer > timelcm) {
+        timer -= timelcm;
+    }
 
     for (uint8_t i = led_min; i < led_max; i++) {
         RGB_MATRIX_TEST_LED_FLAGS();
         int dx = g_led_config.point[i].x - k_rgb_matrix_center.x;
         int dy = g_led_config.point[i].y - k_rgb_matrix_center.y;
 
-        int time = scale16by8(g_rgb_timer, rgb_matrix_config.speed / 8);
         float val = (
-            pow(fabs(sin(time * sine_one_w - dx * sine_one_kx - dy * sine_one_ky * dy + sine_one_phi0)), 2.0) * sine_one_amp
-            + pow(fabs(sin(time * sine_two_w - dx * sine_two_kx - dy * sine_two_ky * dy + sine_two_phi0)), 2.0) * sine_two_amp
-            + pow(fabs(sin(time * sine_three_w - dx * sine_three_kx - dy * sine_three_ky * dy + sine_three_phi0)), 2.0) * sine_three_amp)
+            pow(fabs(sin(timer * sine_one_w - dx * sine_one_kx - dy * sine_one_ky * dy + sine_one_phi0)), 2.0) * sine_one_amp
+            + pow(fabs(sin(timer * sine_two_w - dx * sine_two_kx - dy * sine_two_ky * dy + sine_two_phi0)), 2.0) * sine_two_amp
+            + pow(fabs(sin(timer * sine_three_w - dx * sine_three_kx - dy * sine_three_ky * dy + sine_three_phi0)), 2.0) * sine_three_amp)
             / (sine_one_amp + sine_two_amp + sine_three_amp) * variety;
 
         HSV hsv = rgb_matrix_config.hsv;
@@ -42,6 +52,8 @@ bool TRUE_LAVA(effect_params_t* params) {
         hsv.v -= hsv.v * val;
 
         RGB rgb = rgb_matrix_hsv_to_rgb(hsv);
+
+        timer += rgb_matrix_config.speed / 2048.0;
 
         rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
     }
