@@ -70,7 +70,8 @@ bool TRUE_LAVA(effect_params_t* params) {
             / (sine_one_amp + sine_two_amp + sine_three_amp) * variety;
 
         float ripples = gen_ripples(i);
-        val = val * (1.0 - ripples) + (fmin(variety * 2.0, 1.0) - val) * ripples;
+        float ripplePeak = fmin(fmax(variety * 2.0, 0.2), 1.0);
+        val = val * (1.0 - ripples) + (ripplePeak - val) * ripples;
 
         HSV hsv = rgb_matrix_config.hsv;
 
