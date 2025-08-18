@@ -2,7 +2,7 @@
 RGB_MATRIX_EFFECT(TRUE_LAVA)
 #    ifdef RGB_MATRIX_CUSTOM_EFFECT_IMPLS
 
-static float timer;
+static uint64_t timer = 0;
 
 static float gen_ripples(uint8_t index)
 {
@@ -47,16 +47,22 @@ bool TRUE_LAVA(effect_params_t* params) {
     const float sine_three_phi0 = 2;
     const float sine_three_amp = 2;
 
-    const float timelcm = acos(-1) * 10000000.0;
-
     float variety = rgb_matrix_config.variety / 256.0;
 
     if (params->init) {
         timer = 0;
     }
-    if (timer > timelcm) {
-        timer -= timelcm;
-    }
+
+    static uint32_t s_last_timer_value = 0;
+
+    if (s_last_timer_value != 0)
+        timer += g_rgb_timer - s_last_timer_value;
+    s_last_timer_value = g_rgb_timer;
+
+    double scaled_timer = timer / 1000.0f * rgb_matrix_config.speed;
+
+    // The prophecy foretold that this number will result in minimal jitters
+    timer %= 5716620ll * 1000ll;
 
     for (uint8_t i = led_min; i < led_max; i++) {
         RGB_MATRIX_TEST_LED_FLAGS();
@@ -64,14 +70,14 @@ bool TRUE_LAVA(effect_params_t* params) {
         int dy = g_led_config.point[i].y - k_rgb_matrix_center.y;
 
         float val = (
-            pow(fabs(sin(timer * sine_one_w - dx * sine_one_kx - dy * sine_one_ky * dy + sine_one_phi0)), 2.0) * sine_one_amp
-            + pow(fabs(sin(timer * sine_two_w - dx * sine_two_kx - dy * sine_two_ky * dy + sine_two_phi0)), 2.0) * sine_two_amp
-            + pow(fabs(sin(timer * sine_three_w - dx * sine_three_kx - dy * sine_three_ky * dy + sine_three_phi0)), 2.0) * sine_three_amp)
+            pow(fabs(sin(scaled_timer * sine_one_w - dx * sine_one_kx - dy * sine_one_ky * dy + sine_one_phi0)), 2.0) * sine_one_amp
+            + pow(fabs(sin(scaled_timer * sine_two_w - dx * sine_two_kx - dy * sine_two_ky * dy + sine_two_phi0)), 2.0) * sine_two_amp
+            + pow(fabs(sin(scaled_timer * sine_three_w - dx * sine_three_kx - dy * sine_three_ky * dy + sine_three_phi0)), 2.0) * sine_three_amp)
             / (sine_one_amp + sine_two_amp + sine_three_amp) * variety;
 
         float ripples = gen_ripples(i);
-        float ripplePeak = fmin(fmax(variety * 2.0, 0.2), 1.0);
-        val = val * (1.0 - ripples) + (ripplePeak - val) * ripples;
+        float ripple_peak = fmin(fmax(variety * 2.0, 0.2), 1.0);
+        val = val * (1.0 - ripples) + (ripple_peak - val) * ripples;
 
         HSV hsv = rgb_matrix_config.hsv;
 
@@ -80,8 +86,6 @@ bool TRUE_LAVA(effect_params_t* params) {
         hsv.v -= hsv.v * val;
 
         RGB rgb = rgb_matrix_hsv_to_rgb(hsv);
-
-        timer += rgb_matrix_config.speed / 2048.0;
 
         rgb_matrix_set_color(i, rgb.r, rgb.g, rgb.b);
     }
