@@ -18,7 +18,7 @@ static float gen_ripples(uint8_t index)
         float tick = (float)g_last_hit_tracker.tick[j] / 256.0 / 5.0;
 
         const float maxDistance = 0.3125;
-        float currentRipple = expf(-409.6 * (distance - tick) * (distance - tick)) * (1 - distance / maxDistance);
+        float currentRipple = expf(-300.0 * (distance - tick) * (distance - tick)) * (1 - distance / maxDistance);
 
         if (distance <= maxDistance) {
             ripple = fmax(ripple, currentRipple);
@@ -76,14 +76,14 @@ bool TRUE_LAVA(effect_params_t* params) {
             / (sine_one_amp + sine_two_amp + sine_three_amp) * variety;
 
         float ripples = gen_ripples(i);
-        float ripple_peak = fmin(fmax(variety * 2.0, 0.2), 1.0);
+        float ripple_peak = fmin(fmax(variety * 2.0, 0.4), 1.0);
         val = val * (1.0 - ripples) + (ripple_peak - val) * ripples;
 
         HSV hsv = rgb_matrix_config.hsv;
 
-        hsv.h = (hsv.h - (int)(50 * val)) % 256;
+        hsv.h = hsv.h - (int)(50 * val);
         if (hsv.s != 0) hsv.s += (255 - hsv.s) * val;
-        hsv.v -= hsv.v * val;
+        hsv.v -= hsv.v * val * (1.0 - hsv.s / 256.0f * 0.6);
 
         RGB rgb = rgb_matrix_hsv_to_rgb(hsv);
 
