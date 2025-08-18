@@ -82,7 +82,7 @@ bool TRUE_LAVA(effect_params_t* params) {
         HSV hsv = rgb_matrix_config.hsv;
 
         hsv.h = (hsv.h - (int)(50 * val)) % 256;
-        hsv.s += (255 - hsv.s) * val;
+        if (hsv.s != 0) hsv.s += (255 - hsv.s) * val;
         hsv.v -= hsv.v * val;
 
         RGB rgb = rgb_matrix_hsv_to_rgb(hsv);
